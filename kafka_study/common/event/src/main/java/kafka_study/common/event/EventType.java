@@ -1,9 +1,6 @@
 package kafka_study.common.event;
 
-import kafka_study.common.event.payload.RankingRewardEventPayload;
-import kafka_study.common.event.payload.WorkLikedEventPayload;
-import kafka_study.common.event.payload.WorkUnLikedEventPayload;
-import kafka_study.common.event.payload.WorkViewedEventPayload;
+import kafka_study.common.event.payload.InsertBoardEventPayload;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public enum EventType {
 
-    WORK_LIKED(WorkLikedEventPayload.class, Topic.WORK_LIKE),
-    WORK_UNLIKED(WorkUnLikedEventPayload.class, Topic.WORK_LIKE),
-    WORK_VIEWED(WorkViewedEventPayload.class, Topic.WORK_VIEW),
-    RANKING_REWARD(RankingRewardEventPayload.class, Topic.RANKING_REWARD),
+    INSERT_BOARD(InsertBoardEventPayload.class, Topic.BOARD),
+
 
 
     ;
@@ -35,8 +30,6 @@ public enum EventType {
     }
 
     public static class Topic {
-        public static final String WORK_LIKE = "work-like";
-        public static final String WORK_VIEW = "work-review";
-        public static final String RANKING_REWARD = "ranking-reward";
+        public static final String BOARD = "board";
     }
 }

@@ -17,3 +17,14 @@ create table kafka_study.outbox
     constraint idempotency_key
         unique (idempotency_key)
 );
+
+create table kafka_study.boards
+(
+    board_no   bigint auto_increment
+        primary key,
+    title      varchar(255)                not null,
+    content    text                        not null,
+    use_yn     enum ('Y', 'N') default 'N' not null,
+    created_at datetime                    not null,
+    updated_at datetime                    null
+);
