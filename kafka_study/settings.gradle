@@ -1,0 +1,6 @@
+rootProject.name = 'kafka_study'
+
+include 'common'
+include 'service'
+include 'service:producer'
+include 'service:consumer'

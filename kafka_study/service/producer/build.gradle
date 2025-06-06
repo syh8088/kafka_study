@@ -1,0 +1,21 @@
+dependencies {
+
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // mybatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.3'
+
+    // resilience4j
+    implementation group: 'io.github.resilience4j', name: 'resilience4j-spring-boot3', version: '2.2.0'
+    implementation group: 'io.github.resilience4j', name: 'resilience4j-all', version: '1.7.0'
+
+    // json
+    implementation group: 'com.google.code.gson', name: 'gson'
+
+    // kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+}
