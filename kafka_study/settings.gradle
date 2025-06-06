@@ -1,6 +1,11 @@
 rootProject.name = 'kafka_study'
 
 include 'common'
+include 'common:kafka'
+include 'common:outbox-message-relay'
+include 'common:event'
+include 'common:snowflake'
+include 'common:data-serializer'
 include 'service'
 include 'service:producer'
 include 'service:consumer'

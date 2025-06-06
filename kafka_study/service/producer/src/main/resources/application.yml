@@ -1,0 +1,25 @@
+spring:
+  application:
+    name: kafka_study-producer-service
+  datasource:
+    url: jdbc:mysql://localhost:3306/kafka_study
+    username: root
+    password: 1234
+  jpa:
+    show-sql: true # 콘솔로그로 출력하려면
+    hibernate:
+      ddl-auto: none
+    properties:
+      hibernate:
+        enable_lazy_load_no_trans: false
+        default_batch_fetch_size: 1000
+        format_sql: true # SQL 포맷팅
+        highlight_sql: true # ANSI 코드에 색을 나타낸다
+        use_sql_comments: true # SQL 내부에 /* */ 주석 추가
+        dialect: org.hibernate.dialect.MySQLDialect
+    open-in-view: false
+  kafka:
+    bootstrap-servers: localhost:9092,localhost:9093,localhost:9094
+
+server:
+  port: 8080

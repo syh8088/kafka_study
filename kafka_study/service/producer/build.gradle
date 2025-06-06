@@ -16,6 +16,12 @@ dependencies {
     // json
     implementation group: 'com.google.code.gson', name: 'gson'
 
-    // kafka
-    implementation 'org.springframework.kafka:spring-kafka'
+    implementation 'ch.qos.logback:logback-classic'
+
+    implementation 'org.slf4j:slf4j-api:2.0.12'
+
+    implementation project(':common:snowflake')
+    implementation project(':common:outbox-message-relay')
+    implementation project(':common:event')
+    implementation project(':common:kafka')
 }
