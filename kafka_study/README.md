@@ -18,7 +18,7 @@
   - http://localhost:8080
 
 - catalog-service (상품 서비스)
-  - http://localhost:8081
+  - http://localhost:{랜덤}
 
 ### FrontEnd Service Endpoint
 - 게시판 글 등록하기
@@ -34,7 +34,7 @@ docker-compose up -d
 
 ## Kafka 주요 구성 요소
 
-![Kafka 주요 구성 요소](./md_resource/Kafka_mainComponent.PNG)
+![Kafka 주요 구성 요소](./md_resource/Kafka_mainComponent.png)
 
 - Topic: Kafka 안에서 메시지가 저장되는 장소 (논리적인 표현)
 - Producer : 메시지를 생산(Produce) 해서 Kafka 의 `Topic` 으로 메시지를 보내는 애플리케이션
@@ -45,14 +45,14 @@ docker-compose up -d
 
 ### Kafka 기본 동작 방식 - `Producer` 와 `Consumer` 는 `Decoupling` 되어 있다.
 
-![`Producer` 와 `Consumer` 는 `Decoupling`](./md_resource/ProducerConsumerDecoupling.PNG)
+![`Producer` 와 `Consumer` 는 `Decoupling`](./md_resource/ProducerConsumerDecoupling.png)
 
 - 각각 `Producer` 와 `Consumer` 는 서로 알지 못하며 (알 필요도 없음), `Producer` 와 `Consumer` 는 각자 고유의 속도로 `Commit Log` 에 `Write` 및 `Read` 를 수행 합니다.
 - 다른 `Consumer Group` 에 속한 `Consumer` 들은 서로 관련이 없으며, `Commit Log` 에 있는 `Event(Message)` 를 동시에 다른 위치에서 `Read` 할 수 있습니다.
 
 ### Kafka 기본 동작 방식 - `Kafka Commit Log` 는 추가만 가능하고 변경 불가능한 데이터 스트럭처
 
-![Kafka Commit Log](./md_resource/KafkaCommitLog.PNG)
+![Kafka Commit Log](./md_resource/KafkaCommitLog.png)
 
 - Commit Log : 추가만 가능하고 변경 불가능한 데이터 스트럭처 데이터(Event)는 항상 로그 끝에 추가되고 변경되지 않습니다.
 - Offset : `Commit Log` 의 `Event` 위치 
@@ -62,7 +62,7 @@ docker-compose up -d
 
 ### Kafka 논리적 표현 - `Topic`, `Partition`, `Segment`
 
-![Kafka 논리적 표현](./md_resource/KafkaLogicalRepresentation.PNG)
+![Kafka 논리적 표현](./md_resource/KafkaLogicalRepresentation.png)
 
 - Topic : Kafka 안에서 메시지가 저장되는 장소, 논리적인 표현
 - Partition : `Commit Log`, 하나의 `Topic`은 하나 이상의 `Partition`으로 구성
@@ -71,7 +71,7 @@ docker-compose up -d
 
 ### Kafka 물리적 표현 - `Topic`, `Partition`, `Segment`
 
-![Kafka 물리적 표현](./md_resource/KafkaPhysicalRepresentation.PNG)
+![Kafka 물리적 표현](./md_resource/KafkaPhysicalRepresentation.png)
 
 - `Topic` 생성시 `Partition` 수를 Custom 해서 설정 할 수 있습니다. 
 - `Topic` 으로 구성 된 각각의 `Partition` 은 `Broker` 들에 분산되며 `Segment File` 들로 저장 및 구성 하게 됩니다.
@@ -82,7 +82,7 @@ docker-compose up -d
 
 
 ### Kafka Serializer & Deserializer
-![Serializer&Deserializer](./md_resource/KafkaSerializer&Deserializer.PNG)
+![Serializer&Deserializer](./md_resource/KafkaSerializer&Deserializer.png)
 
 - `Kafka` 는 Record(데이터) 를 `Byte Array` 형식으로 저장 됩니다.
 - `Producer` 는 `Serializer` 사용하고 반대로 `Consumer` 는 `Deserializer` 를 사용하게 됩니다.
@@ -115,7 +115,7 @@ docker-compose up -d
 
 ### Kafka Producer Application 내부 동작
 
-![Kafka Producer Application 내부 동작](./md_resource/InternalWorkingsOfAKafkaProducerApplication.PNG)
+![Kafka Producer Application 내부 동작](./md_resource/InternalWorkingsOfAKafkaProducerApplication.png)
 
 우선 `Producer Application` 내에 전송 하고자 하는 `Producer Record` 데이터를 만듭니다. `Send()` 를 하게 된다면 `Serializer` 에서 미리 지정한 어떤 데이터 형식으로 Serializer 할 것인지 변환 되고 이전에 `Send()` 할때 `Partition` 을 지정을 했다면 어떤 파티션에 저장 할 것인지 지정을 하게 됩니다.
 
@@ -124,7 +124,7 @@ docker-compose up -d
 카프카로 부터 응답이 오는데 성공적으로 저장 되었는지 아니면 실패 했는지에 따라 실패를 했다고 `재시도` 설정에 따라 다시 시도 하게 되고 성공이면 성공에 대한 응답을 하게 됩니다.
 
 
-![Partition 역활](./md_resource/PartitionRole.PNG)
+![Partition 역활](./md_resource/PartitionRole.png)
 `Producer Application` 내에 `Producer Record` 데이터를 만들고 카프카 서버로 전송시 `Partition Key` 값을 지정 하고 전송시 `Partitioner` 에서는 Hash 알고리즘으로 어떤 `Partition` 으로 보낼지 값을 계산해서 카프카에 전송 하게 됩니다.
 
 
@@ -137,13 +137,13 @@ docker-compose up -d
 
 ### 멀티 Partition 과 Consumer 관계
 
-![멀티 Partition 과 싱글 Consumer 관계](./md_resource/Multi-PartitionAndConsumerRelationship.PNG)
+![멀티 Partition 과 싱글 Consumer 관계](./md_resource/Multi-PartitionAndConsumerRelationship.png)
 
 3개의 `Partition` 으로 구성된 `Topic A`를 데이터를 사용하는 단 1개의 `Consumer`가 있는 경우 해당 `Consumer` 는 Topic 의 모든 `Partition` 에서 모든 `Record` 를 `Consume` 하게 됩니다.
 
 
-![멀티 Partition 과 멀티 Consumer 관계](./md_resource/Multi-PartitionAndMulti-ConsumerRelationship.PNG)
-![멀티 Partition 과 멀티 Consumer 관계2](./md_resource/Multi-PartitionAndMulti-ConsumerRelationship2.PNG)
+![멀티 Partition 과 멀티 Consumer 관계](./md_resource/Multi-PartitionAndMulti-ConsumerRelationship.png)
+![멀티 Partition 과 멀티 Consumer 관계2](./md_resource/Multi-PartitionAndMulti-ConsumerRelationship2.png)
 
 - 동일한 `group 아이디` 로 구성된 각각의 `Consumer` 들은 하나의 `Consumer Group` 을 형성 하게 됩니다.
 - 만약 3개의 파티션이 존재하고 있는 `Topic A` 있다고 하면 `consume` 하는 `3개의 Consumer` 가 하나의 `Consumer Group (Group B)`에 있다면, 각 `Consumer` 는 정확히 하나의 `Partition`에서 `Record`를 `onsume` 하게 됩니다.
@@ -152,14 +152,14 @@ docker-compose up -d
 
 ### Kafka Message Ordering (순서)
 
-![Kafka Message Ordering](./md_resource/KafkaMessageOrdering.PNG)
+![Kafka Message Ordering](./md_resource/KafkaMessageOrdering.png)
 
 - `Partition` 이 2개 이상일 경우 메시지 순서는 보장은 못 합니다. 만약 `Partition` 이 1개 일 경우는 순서는 보장 받을 수 있겠지만 처리량이 저하 될 수 있습니다.
 - `Partition` 2개 이상으로 순서 보장을 받고 싶으면 (유저 별로) 유저 식별자키 값을 이용해서 `Partition Key` 값을 만든 다음에 순서 보장 받아야 합니다.
 
 ### Consumer Failure
 
-![ConsumerFailure](./md_resource/ConsumerFailure.PNG)
+![ConsumerFailure](./md_resource/ConsumerFailure.png)
 
 3개의 `Partition`이 있는 `Topic` 을 하나의 `Consumer Group` 내에 `consume` 하는 3 개의 `Consumer`가 존재 한다고 가정 하겠습니다. 각 `Consumer` 는 정확히 하나의 `Partition` 에서 `Record` 를 `consume` 하고 있습니다.
 
@@ -167,7 +167,7 @@ docker-compose up -d
 
 ### Broker Replication 기능
 
-![BrokerReplication1](./md_resource/BrokerReplication1.PNG)
+![BrokerReplication1](./md_resource/BrokerReplication1.png)
 
 
 `Producer` 와 `Consumer` 는 `Leader Partition` 만 통신 하게 됩니다. `Follower Partition` 는 복제만 역활 하게 됩니다.  즉 `Follower Partition` 는 `Broker` 장애시 안정성을 제공하기 위해서만 존재 합니다.
@@ -175,7 +175,7 @@ docker-compose up -d
 그리고 `Follower Partition` 는 `Leader Partition` 의 `Commit Log` 에서 데이터를 가져오기 `요청(Fetch Request)` 으로 복제 통해 동기화 하게 됩니다.
 
 
-![BrokerReplication2](./md_resource/BrokerReplication2.PNG)
+![BrokerReplication2](./md_resource/BrokerReplication2.png)
 
 만약 기존 `Leader Partition` 장애 발생시 `Kafka Controller` 인해서 `Follower Partition` 이 `Leader Partition` 으로 승격 처리 됩니다. 이후 `Producer` 는 새로 선출 된 `Leader` 에게만 `Write` 하고 `Consumer` 또한 `Leader` 로부터만 `Read` 하게 됩니다.
 
@@ -186,18 +186,18 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 
 #### Acks=0
 
-![Producer Acks=0](./md_resource/ProducerAcks=0.PNG)
+![Producer Acks=0](./md_resource/ProducerAcks=0.png)
 
 `Producer` 는 `Broker`의 응답을 기다리지 않으며 메시지 전송이 즉시 완료된 것으로 간주합니다. 데이터 손실 가능성이 가장 높지만 가장 높은 전송 속도를 제공합니다. (보통 이 방식은 사용 되지 않음)
 
 #### Acks=1
 
-![Producer Acks=1](./md_resource/ProducerAcks=1.PNG)
+![Producer Acks=1](./md_resource/ProducerAcks=1.png)
 
 `Producer` 는 `Broker Leader Partition` 에게 메시지가 저장되었다는 응답을 기다리게 됩니다. `Broker Leader Partition`에 메시지가 저장되었으므로 데이터 손실 가능성이 낮지만, `Leader Partition`이 실패하면 데이터가 유실될 가능성이 있습니다.
 
 #### Acks=-1 or all
 
-![Producer Acks=-1 or all](./md_resource/ProducerAcks=-1ORall.PNG)
+![Producer Acks=-1 or all](./md_resource/ProducerAcks=-1ORall.png)
 
 `Producer`는 `Broker Leader Partition` 과 모든 `Broker Follower Partition`가 저장되었다는 응답을 기다립니다. (모두 `Commit` 이 완료 되면) 데이터 손실 가능성이 가장 낮지만 가장 낮은 전송 속도를 제공합니다. 

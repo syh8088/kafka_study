@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
 public class MessageRelay {
 
     private final OutboxRepository outboxRepository;
-    private final MessageRelayCoordinator messageRelayCoordinator;
+//    private final MessageRelayCoordinator messageRelayCoordinator;
     private final KafkaTemplate<String, String> messageRelayKafkaTemplate;
 
     private final TransactionTemplate transactionTemplate;
@@ -45,7 +45,7 @@ public class MessageRelay {
             messageRelayKafkaTemplate.send(
                     outbox.getEventType().getTopic(),
                     outbox.getPartitionKey(),
-                    String.valueOf(outbox.getShardKey()),
+                    String.valueOf(outbox.getPartitionKey()),
                     outbox.getPayload()
             ).get(1, TimeUnit.SECONDS);
         }
