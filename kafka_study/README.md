@@ -167,20 +167,37 @@ docker-compose up -d
 
 ### Broker Replication 기능
 
+![BrokerReplication1](./md_resource/BrokerReplication1.PNG)
+
+
 `Producer` 와 `Consumer` 는 `Leader Partition` 만 통신 하게 됩니다. `Follower Partition` 는 복제만 역활 하게 됩니다.  즉 `Follower Partition` 는 `Broker` 장애시 안정성을 제공하기 위해서만 존재 합니다.
 
 그리고 `Follower Partition` 는 `Leader Partition` 의 `Commit Log` 에서 데이터를 가져오기 `요청(Fetch Request)` 으로 복제 통해 동기화 하게 됩니다.
 
 
-• Partition을 복제(Replication)하여 다른 Broker상에서 복제물(Replicas)을 만들어서 장애를 미리
-대비함
+![BrokerReplication2](./md_resource/BrokerReplication2.PNG)
 
-. Replicas - Leader Partition, Follower Partition
-
-• Producer는 Leader에만 Write하고 Consumer는 Leader로부터만 Read함
-
-• Follower는 Leader의 Commit Log에서 데이터를 가져오기 요청(Fetch Request)으로 복제
+만약 기존 `Leader Partition` 장애 발생시 `Kafka Controller` 인해서 `Follower Partition` 이 `Leader Partition` 으로 승격 처리 됩니다. 이후 `Producer` 는 새로 선출 된 `Leader` 에게만 `Write` 하고 `Consumer` 또한 `Leader` 로부터만 `Read` 하게 됩니다.
 
 
+### Producer Acks 전략 
 
+Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었는지 확인하는 방식으로 데이터의 안전성과 성능을 조절하는 데 사용됩니다.
 
+#### Acks=0
+
+![Producer Acks=0](./md_resource/ProducerAcks=0.PNG)
+
+`Producer` 는 `Broker`의 응답을 기다리지 않으며 메시지 전송이 즉시 완료된 것으로 간주합니다. 데이터 손실 가능성이 가장 높지만 가장 높은 전송 속도를 제공합니다. (보통 이 방식은 사용 되지 않음)
+
+#### Acks=1
+
+![Producer Acks=1](./md_resource/ProducerAcks=1.PNG)
+
+`Producer` 는 `Broker Leader Partition` 에게 메시지가 저장되었다는 응답을 기다리게 됩니다. `Broker Leader Partition`에 메시지가 저장되었으므로 데이터 손실 가능성이 낮지만, `Leader Partition`이 실패하면 데이터가 유실될 가능성이 있습니다.
+
+#### Acks=-1 or all
+
+![Producer Acks=-1 or all](./md_resource/ProducerAcks=-1ORall.PNG)
+
+`Producer`는 `Broker Leader Partition` 과 모든 `Broker Follower Partition`가 저장되었다는 응답을 기다립니다. (모두 `Commit` 이 완료 되면) 데이터 손실 가능성이 가장 낮지만 가장 낮은 전송 속도를 제공합니다. 
