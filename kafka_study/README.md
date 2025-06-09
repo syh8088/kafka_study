@@ -227,11 +227,9 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 ### Exactly Once Semantics (EOS) 이용 해서 멱등성 보장 하기
 
 
+### 메시지 이벤트 이용시 `Transaction OutBox Pattern` 함께 알아보기
 
-
-## 메시지 이벤트 이용시 `Transaction OutBox Pattern` 함께 알아보기
-
-// 이미지
+![Transaction OutBox Pattern 도입 전](./md_resource/TransactionOutBoxPattern1.png)
 
 `Producer` 에서 `Kafka` 로 메시지 발생시 동시에 특정 DB 에 있는 데이터를 `Insert` 및 `Update` 처리 하고 메시지 발행 해야 하는 경우가 많이 발생 됩니다.
 
@@ -241,7 +239,7 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 
 이때 해결하고자 `Transaction OutBox Pattern` 도입 하게 됩니다.
 
-// 이미지
+![Transaction OutBox Pattern 도입 후](./md_resource/TransactionOutBoxPattern2.png)
 
 `Transactional Outbox Pattern` 경우 메시지 큐에 발행할 이벤트 메시지 내용을 `outbox 테이블`에 저장 하고 `Transaction 영역`에 포함 하도록 합니다.
 
@@ -253,4 +251,13 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 `Rollback` 이 되고 결국 메시지 발행은 하지 않도록 합니다.
 
 만약 성공 할때는 안전 하게 `메시지 발행에 필요한 outbox 테이블 Insert` 처리가 되면 주기적으로 DB 의 `outbox` 테이블에서 전송되지 않은 이벤트 메시지들을 조회해서 메시지 큐에 전송 하게 됩니다.
+
+
+### 실전 Kafka 사용해보기
+
+![실전 Kafka 사용해보기](./md_resource/Real-lifeScenario.png)
+
+`zookeeper` 1대, `kafka broker` 3대를 이용해서 `Kafka Cluster` 를 구성하고 `Producer` 1대 서버 및 `Consumer` 서버 2대를 이용해서 `Kafka` 와 통신 하도록 합니다.
+
+`Topic` 은 `board` 로 만들고 `partition` 은 3개 그리고 'Replication Factor' 를 3개로 합니다.
 
