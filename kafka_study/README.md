@@ -194,10 +194,63 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 
 ![Producer Acks=1](./md_resource/ProducerAcks=1.png)
 
-`Producer` 는 `Broker Leader Partition` 에게 메시지가 저장되었다는 응답을 기다리게 됩니다. `Broker Leader Partition`에 메시지가 저장되었으므로 데이터 손실 가능성이 낮지만, `Leader Partition`이 실패하면 데이터가 유실될 가능성이 있습니다.
+`Producer` 는 `Broker Leader Partition` 에게 메시지가 저장 되었다는 응답을 기다리게 됩니다. `Broker Leader Partition`에 메시지가 저장 되었으므로 데이터 손실 가능성이 낮지만, `Leader Partition`이 실패하면 데이터가 유실될 가능성이 있습니다.
 
 #### Acks=-1 or all
 
 ![Producer Acks=-1 or all](./md_resource/ProducerAcks=-1ORall.png)
 
-`Producer`는 `Broker Leader Partition` 과 모든 `Broker Follower Partition`가 저장되었다는 응답을 기다립니다. (모두 `Commit` 이 완료 되면) 데이터 손실 가능성이 가장 낮지만 가장 낮은 전송 속도를 제공합니다. 
+`Producer`는 `Broker Leader Partition` 과 모든 `Broker Follower Partition`가 저장 되었다는 응답을 기다립니다. (모두 `Commit` 이 완료 되면) 데이터 손실 가능성이 가장 낮지만 가장 낮은 전송 속도를 제공합니다.
+
+
+## 메시지 전달 보장 (Message Delivery Guarantees) 수준에 대해 고려
+
+### At most once (최대 한 번)
+메세지가 딱 한번만 전송 됩니다. `Producer` 에서 `Kafka broker` 에게 메시지 전송 후 만약 `broker` 으로부터 `응답 확인 (Ack)`을 받지 못 하더라도 다시 재전송을 하지 않습니다.
+중복 방지를 할 수 있겠지만 만약 네트워크 문제로 메시지를 정상적으로 `broker` 로 전송하지 못 할 경우 데이터 유실이 발생 할 수 있습니다.
+
+### At least once (최소 한 번)
+메시지 유실을 허용 하지 않는 전략 으로써 만약 `Producer` 에서 `Kafka broker` 에게 메시지 전송 후 `broker` 으로 부터 `응답 확인 (Ack)` 데이터를 받지 못하면 다시 재 전송을 하게 됩니다.
+
+이때 `broker` 가 정상적으로 메시지를 받았지만 저장을 못해서 발생된 문제인지 아니면 메시지 조차 못 받았는지 `Producer` 입장 으로 확인 할 수 없어 다시 메시지를 전송 하게 됩니다.
+
+이런 점을 보았을때 `At least once (최소 한 번)` 는 메시지 유실에 대한 방지에 목적을 두었지만 상황에 따라 메시지 중복은 발생 할 수 있습니다.
+
+### Exactly once (정확히 한 번)
+
+정확히 한번에 처리 하는 방식 이라고 생각 하면 됩니다. 즉 단 한번 으로 메시지 유실도 없고, 중복 메시지도 발생 하지 않으면서 처리 하는 방식 인데요.
+이러한 두가지 조건을 만족 하기 위해서는 `ECO 시스템`이 필요 합니다. `Producer` 가 `Kafka broker` 에게 메시지 발생시 `Producer ID + 시퀀스 넘버 (유니크 키)` 값 함께 전송 하게 됩니다.
+만약 중복 메시지가 전송 된다면 동일한 `Producer ID + 시퀀스 넘버` 값이 전송 하게 될테고 중복 으로 확인 된다면 처리 하지 않도록 합니다.
+
+반대로 메시지 발행 후 `Producer` 으로 응답 확인 `Ack` 값이 전송 하지 않으시 (처음 broker 로 메시지 도착 조차 안했을 경우) 다시 재전송 해서 처리 하게 됩니다.
+
+### Exactly Once Semantics (EOS) 이용 해서 멱등성 보장 하기
+
+
+
+
+## 메시지 이벤트 이용시 `Transaction OutBox Pattern` 함께 알아보기
+
+// 이미지
+
+`Producer` 에서 `Kafka` 로 메시지 발생시 동시에 특정 DB 에 있는 데이터를 `Insert` 및 `Update` 처리 하고 메시지 발행 해야 하는 경우가 많이 발생 됩니다.
+
+만약 DB 에 있는 데이터를 `Insert` 및 `Update` 처리 완료 하고 메시지 발행시 실패 한다면 어떻게 될까요?
+
+반대로 DB 에 있는 데이터를 `Insert` 및 `Update` 처리는 실패 했지만 메시지 발행이 성공 되었다면 데이터 `일관성` 문제가 발생 됩니다. (메시지 발행은 `Rollback` 이 불가능 하다.)
+
+이때 해결하고자 `Transaction OutBox Pattern` 도입 하게 됩니다.
+
+// 이미지
+
+`Transactional Outbox Pattern` 경우 메시지 큐에 발행할 이벤트 메시지 내용을 `outbox 테이블`에 저장 하고 `Transaction 영역`에 포함 하도록 합니다.
+
+만약 이후 `DB Insert/Update` 처리 및 `메시지 발행에 필요한 outbox 테이블 Insert` 처리가 하나 라도 실패할 경우 
+
+1. `DB Insert/Update` 처리  
+2. `메시지 발행에 필요한 outbox 테이블 Insert` 처리
+
+`Rollback` 이 되고 결국 메시지 발행은 하지 않도록 합니다.
+
+만약 성공 할때는 안전 하게 `메시지 발행에 필요한 outbox 테이블 Insert` 처리가 되면 주기적으로 DB 의 `outbox` 테이블에서 전송되지 않은 이벤트 메시지들을 조회해서 메시지 큐에 전송 하게 됩니다.
+
