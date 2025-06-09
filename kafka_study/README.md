@@ -259,5 +259,5 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 
 `zookeeper` 1대, `kafka broker` 3대를 이용해서 `Kafka Cluster` 를 구성하고 `Producer` 1대 서버 및 `Consumer` 서버 2대를 이용해서 `Kafka` 와 통신 하도록 합니다.
 
-`Topic` 은 `board` 로 만들고 `partition` 은 3개 그리고 'Replication Factor' 를 3개로 합니다.
+`Topic` 은 `board` 로 만들고 `partition` 은 3개 그리고 `Replication Factor` 를 3개로 합니다.
 
