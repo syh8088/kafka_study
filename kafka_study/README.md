@@ -231,7 +231,7 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 
 ![Transaction OutBox Pattern 도입 전](./md_resource/TransactionOutBoxPattern1.png)
 
-`Producer` 에서 `Kafka` 로 메시지 발생시 동시에 특정 DB 에 있는 데이터를 `Insert` 및 `Update` 처리 하고 메시지 발행 해야 하는 경우가 많이 발생 됩니다.
+`Producer` 에서 `Kafka` 로 메시지 발생시 동시에 `database` 에 있는 특정 데이터를 `Insert` 및 `Update` 처리 하고 메시지 발행 해야 하는 경우가 많이 발생 됩니다.
 
 만약 DB 에 있는 데이터를 `Insert` 및 `Update` 처리 완료 하고 메시지 발행시 실패 한다면 어떻게 될까요?
 
@@ -253,11 +253,52 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 만약 성공 할때는 안전 하게 `메시지 발행에 필요한 outbox 테이블 Insert` 처리가 되면 주기적으로 DB 의 `outbox` 테이블에서 전송되지 않은 이벤트 메시지들을 조회해서 메시지 큐에 전송 하게 됩니다.
 
 
+### Consumer Service 에서 `Retry Queue` 와 `DLQ (Dead Letter Queue)` 알아보기 
+
+![Consumer Service 에서 `Retry Queue` 와 `DLQ (Dead Letter Queue)`](./md_resource/RetryQueue&DLQ(DeadLetterQueue).png)
+
+#### 재시도 할때 고려 해야 할 상황들
+
+- 재시도 제한 횟수 (Retry Limited Count)
+- 지수 백오프 (Exponential Backoff)
+- 지터 (Jitter)
+
+##### 재시도 제한 횟수
+재시도 제한 횟수는 말그대로 에러 발생시 `재시도`를 몇 회 다시 시도 할 것 인가 입니다.
+
+##### 지수 백오프
+`지수 백오프`는 `재시도`와 `재시도 간격`은 얼마나 해야 할까 입니다. 지수 백오프 사이에 시간 간격이 너무 짧으면 서버 과 부하로 이어 집니다.
+그래서 예시로 1회 재시도 시 간격을 1초로 했다면 2회 재시도 시 에는 간격을 2초로 이렇게 설정 하도록 합니다.
+
+##### jitter
+요청이 동시에 재시도 되지 않도록 `지수 백오프 (Exponential Backoff)` 외에 무작위 지연을 추가적 으로 부여 하는 것 입니다.
+
+```markdown
+private BackOff generateBackOff() {
+
+    long backOffInitialInterval = 1000; # 재시도 사이의 초기 대기 시간(밀리초 단위)을 지정
+    double backOffMultipler =  2; # 재시도 사이의 대기시간 배수를 지정
+    int maxAtttempts = 3; # 재시도 하는 횟수
+
+    ExponentialBackOff backOff = new ExponentialBackOff(backOffInitialInterval, backOffMultipler);
+    backOff.setMaxAttempts(maxAtttempts);
+    return backOff;
+}
+```
+
+#### DLQ (Dead Letter Queue)
+
+메시지 처리 작업 에서 중요 한 것은 실패는 허용될 수 있지만 누락은 결코 발생 해서는 안됩니다.
+
+만약 재시도 횟수 초과로 인해 더 이상 `Consumer` 에서 처리 할 수 없는 상황이 발생 되면 `DLQ (Dead Letter Queue)` 에 보관 하도록 하고 나중에 개발자가 후속 처리를 할 수 있도록 해야 합니다.
+
+
+
 ### 실전 Kafka 사용해보기
 
 ![실전 Kafka 사용해보기](./md_resource/Real-lifeScenario.png)
 
-`zookeeper` 1대, `kafka broker` 3대를 이용해서 `Kafka Cluster` 를 구성하고 `Producer` 1대 서버 및 `Consumer` 서버 2대를 이용해서 `Kafka` 와 통신 하도록 합니다.
+`zookeeper` 1대, `kafka broker` 3대를 이용 해서 `Kafka Cluster` 를 구성 하고 `Producer` 1대 서버 및 `Consumer` 서버 2대를 이용 해서 `Kafka` 와 통신 하도록 합니다.
 
 `Topic` 은 `board` 로 만들고 `partition` 은 3개 그리고 `Replication Factor` 를 3개로 합니다.
 
