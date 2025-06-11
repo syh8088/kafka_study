@@ -172,7 +172,7 @@ docker-compose up -d
 
 `Producer` 와 `Consumer` 는 `Leader Partition` 만 통신 하게 됩니다. `Follower Partition` 는 복제만 역활 하게 됩니다.  즉 `Follower Partition` 는 `Broker` 장애시 안정성을 제공하기 위해서만 존재 합니다.
 
-그리고 `Follower Partition` 는 `Leader Partition` 의 `Commit Log` 에서 데이터를 가져오기 `요청(Fetch Request)` 으로 복제 통해 동기화 하게 됩니다.
+그리고 `Follower Partition` 는 `Leader Partition` 의 `Commit Log` 에서 데이터를 가져 오기 `요청(Fetch Request)` 으로 복제 통해 동기화 하게 됩니다.
 
 
 ![BrokerReplication2](./md_resource/BrokerReplication2.png)
@@ -182,19 +182,19 @@ docker-compose up -d
 
 ### Producer Acks 전략 
 
-Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었는지 확인하는 방식으로 데이터의 안전성과 성능을 조절하는 데 사용됩니다.
+Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송 되었는지 확인 하는 방식 으로 데이터의 안전성과 성능을 조절 하는 데 사용 됩니다.
 
 #### Acks=0
 
 ![Producer Acks=0](./md_resource/ProducerAcks=0.png)
 
-`Producer` 는 `Broker`의 응답을 기다리지 않으며 메시지 전송이 즉시 완료된 것으로 간주합니다. 데이터 손실 가능성이 가장 높지만 가장 높은 전송 속도를 제공합니다. (보통 이 방식은 사용 되지 않음)
+`Producer` 는 `Broker`의 응답을 기다리지 않으며 메시지 전송이 즉시 완료된 것으로 간주 합니다. 데이터 손실 가능성이 가장 높지만 가장 높은 전송 속도를 제공 합니다. (보통 이 방식은 사용 되지 않음)
 
 #### Acks=1
 
 ![Producer Acks=1](./md_resource/ProducerAcks=1.png)
 
-`Producer` 는 `Broker Leader Partition` 에게 메시지가 저장 되었다는 응답을 기다리게 됩니다. `Broker Leader Partition`에 메시지가 저장 되었으므로 데이터 손실 가능성이 낮지만, `Leader Partition`이 실패하면 데이터가 유실될 가능성이 있습니다.
+`Producer` 는 `Broker Leader Partition` 에게 메시지가 저장 되었 다는 응답을 기다리게 됩니다. `Broker Leader Partition`에 메시지가 저장 되었으므로 데이터 손실 가능성이 낮지만, `Leader Partition`이 실패하면 데이터가 유실될 가능성이 있습니다.
 
 #### Acks=-1 or all
 
@@ -207,7 +207,7 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송되었�
 
 ### At most once (최대 한 번)
 메세지가 딱 한번만 전송 됩니다. `Producer` 에서 `Kafka broker` 에게 메시지 전송 후 만약 `broker` 으로부터 `응답 확인 (Ack)`을 받지 못 하더라도 다시 재전송을 하지 않습니다.
-중복 방지를 할 수 있겠지만 만약 네트워크 문제로 메시지를 정상적으로 `broker` 로 전송하지 못 할 경우 데이터 유실이 발생 할 수 있습니다.
+중복 방지를 할 수 있겠지만 만약 네트워크 문제로 메시지를 정상적으로 `broker` 로 전송 하지 못 할 경우 데이터 유실이 발생 할 수 있습니다.
 
 ### At least once (최소 한 번)
 메시지 유실을 허용 하지 않는 전략 으로써 만약 `Producer` 에서 `Kafka broker` 에게 메시지 전송 후 `broker` 으로 부터 `응답 확인 (Ack)` 데이터를 받지 못하면 다시 재 전송을 하게 됩니다.
