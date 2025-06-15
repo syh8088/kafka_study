@@ -180,6 +180,15 @@ docker-compose up -d
 만약 기존 `Leader Partition` 장애 발생시 `Kafka Controller` 인해서 `Follower Partition` 이 `Leader Partition` 으로 승격 처리 됩니다. 이후 `Producer` 는 새로 선출 된 `Leader` 에게만 `Write` 하고 `Consumer` 또한 `Leader` 로부터만 `Read` 하게 됩니다.
 
 
+### In-Sync Replicas (ISR)
+
+![In-Sync Replicas (ISR)](./md_resource/In-SyncReplicas.png)
+
+`In-Sync Replicas (ISR)`는 High `Water Mark` 지점까지 동일한 Replicas (Leader와 Follower 모두)의 목록을 지칭 합니다. 즉 `Leader` 장애 발생시 새로운 `Leader` 선출 하는데 사용 됩니다. 
+
+만약 `Leader` 쪽에 장애가 발생 된다고 하면 ISR 중 하나가 `Leader` 로 선출 한다.
+
+
 ### Producer Acks 전략 
 
 Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송 되었는지 확인 하는 방식 으로 데이터의 안전성과 성능을 조절 하는 데 사용 됩니다.
