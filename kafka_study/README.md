@@ -235,6 +235,18 @@ Kafka Producer 의 `acks` 설정은 `message` 가 `Brober` 에 잘 전송 되었
 
 ### Exactly Once Semantics (EOS) 이용 해서 멱등성 보장 하기
 
+![Producer 중복 발생 케이스](./md_resource/Produser_Duplication.png)
+ack 옵션 중 `ack = 1`, `ack -1 (all)` 으로 설정 후 `producer` 가 `broker` 에게 메시지를 발행 후 `ack` 응답을 보내지 않았는데 마침 성공적으로 `broker` 에 메시지를 저장 하게 된다면
+`producer` 는 이를 알지 못하니 다시 재전송을 하게 되어서 중복 처리 하게 됩니다.
+
+![Produser EOS](./md_resource/Produser_EOS.png)
+
+이러한 문제를 해결하기 위해 애초에 `producer` 가 메시지 발행시 `Producer ID + 시퀀스 넘버` (유니크 키) 값 함께 전송 하게 됩니다.
+
+만약 해당 유니크 값을 이용해서 중복 메시지 발행 하더라도 broker 에서는 유니크 값을 인지해 중복 처리 방지 해서 멱등성을 유지 하도록 합니다.
+
+해당 옵션값은 `enable.idempotence` 에서 true 로 설정 하면 됩니다.
+
 
 ### 메시지 이벤트 이용시 `Transaction OutBox Pattern` 함께 알아보기
 
